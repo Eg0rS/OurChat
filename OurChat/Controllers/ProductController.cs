@@ -8,7 +8,7 @@ using OurChat.Models.DomainModels;
 namespace OurChat.Controllers;
 
 [Route("api/[controller]")]
-[ApiController, Authorize]
+[ApiController]
 public class ProductController : ControllerBase
 {
     private readonly DbContextClass _context;
