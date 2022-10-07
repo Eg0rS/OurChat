@@ -66,11 +66,10 @@ builder.Services.AddAuthentication(opt =>
     });
 var app = builder.Build();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/V1/swagger.json", "Product WebAPI"); });
-}
+
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
