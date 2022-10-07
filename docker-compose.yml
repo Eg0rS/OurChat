@@ -2,7 +2,7 @@ version: "3"
 services:
   database:
     restart: always
-    image: postgis/postgis:13-master
+    image: postgres
     volumes:
       - pgd:/var/lib/postgresql/data
     environment:
