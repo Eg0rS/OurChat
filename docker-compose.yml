@@ -1,0 +1,34 @@
+version: "3"
+services:
+  database:
+    restart: always
+    image: postgis/postgis:13-master
+    volumes:
+      - pgd:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgers
+      POSTGRES_PASSWORD: 1
+      POSTGRES_DB: postgres
+
+  web:
+    command: dotnet Test.dll --environment=prod
+    environment:
+      ASPNETCORE_ENVIRONMENT: prod
+    restart: always
+    build:
+      context: .
+      dockerfile: Test/Dockerfile
+  
+  nginx:
+    ports:
+    - '8080:80'
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+volumes:
+  pgd:
+
+networks:
+  default:
+    name: nginx
