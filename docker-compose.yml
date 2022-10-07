@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile
 
   cache:
-    image: redis:3.0.504-windowsservercore
+    image: redis:3.0.504-nanoserver
     ports:
       - 6379:6379
       
