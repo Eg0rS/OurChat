@@ -6,9 +6,11 @@ services:
     volumes:
       - pgd:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: postgers
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1
       POSTGRES_DB: postgres
+    ports:
+      - '5432:5432'
 
   web:
     command: dotnet OurChat.dll --environment=prod
