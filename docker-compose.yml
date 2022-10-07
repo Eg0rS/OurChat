@@ -26,6 +26,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+
+  cache:
+    image: redis:3.0.504-windowsservercore
+    ports:
+      - 6379:6379
+      
 volumes:
   pgd:
 
