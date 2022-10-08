@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.9">
           <PrivateAssets>all</PrivateAssets>
@@ -24,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\OurChat.DataBase\OurChat.DataBase.csproj" />
+      <ProjectReference Include="..\OurChat.JWT\OurChat.JWT.csproj" />
       <ProjectReference Include="..\OurChat.Models\OurChat.Models.csproj" />
     </ItemGroup>
 

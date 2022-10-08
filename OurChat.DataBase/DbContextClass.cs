@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using OurChat.JWT.Models;
 using OurChat.Models.DomainModels;
 
 namespace OurChat.DataBase;
@@ -19,4 +20,5 @@ public class DbContextClass : DbContext
     }
 
     public DbSet<Product> Products { get; set; }
+    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 }

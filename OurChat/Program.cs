@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OurChat.DataBase;
+using OurChat.JWT.Models;
+using OurChat.JWT.Service;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,9 +15,9 @@ Console.WriteLine($"Application Name: {builder.Environment.ApplicationName}");
 Console.WriteLine($"Environment Name: {builder.Environment.EnvironmentName}");
 Console.WriteLine($"ContentRoot Path: {builder.Environment.ContentRootPath}");
 Console.WriteLine($"WebRootPath: {builder.Environment.WebRootPath}");
-// Add services to the container.
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -49,7 +52,11 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 builder.Services.AddDbContext<DbContextClass>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<DbContextClass>()
+    .AddDefaultTokenProviders();
 builder.Services.BuildServiceProvider().GetService<DbContextClass>()?.Database.Migrate();
+builder.Services.AddTransient<IJwtService, JwtService>();
 builder.Services.AddAuthentication(opt =>
     {
         opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -72,7 +79,6 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/V1/swagger.json", "Product WebAPI"); });
-
 
 
 app.UseHttpsRedirection();
