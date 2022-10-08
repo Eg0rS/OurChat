@@ -2,11 +2,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using OurChat.Cache;
+using Microsoft.EntityFrameworkCore;
 using OurChat.DataBase;
-using ConfigurationManager = OurChat.ConfigurationManager;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+Console.WriteLine($"Application Name: {builder.Environment.ApplicationName}");
+Console.WriteLine($"Environment Name: {builder.Environment.EnvironmentName}");
+Console.WriteLine($"ContentRoot Path: {builder.Environment.ContentRootPath}");
+Console.WriteLine($"WebRootPath: {builder.Environment.WebRootPath}");
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -43,9 +48,8 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddDbContext<DbContextClass>();
-
+builder.Services.BuildServiceProvider().GetService<DbContextClass>()?.Database.Migrate();
 builder.Services.AddAuthentication(opt =>
     {
         opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,16 +63,16 @@ builder.Services.AddAuthentication(opt =>
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = ConfigurationManager.AppSetting["JWT:ValidIssuer"],
-            ValidAudience = ConfigurationManager.AppSetting["JWT:ValidAudience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ConfigurationManager.AppSetting["JWT:Secret"]))
+            ValidIssuer = builder.Configuration["Tokens:Authenticate:Issuer"],
+            ValidAudience = builder.Configuration["Tokens:Authenticate:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Tokens:Authenticate:Secret"]))
         };
     });
 var app = builder.Build();
-// Configure the HTTP request pipeline.
 
-    app.UseSwagger();
-    app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/V1/swagger.json", "Product WebAPI"); });
+app.UseSwagger();
+app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/V1/swagger.json", "Product WebAPI"); });
+
 
 
 app.UseHttpsRedirection();

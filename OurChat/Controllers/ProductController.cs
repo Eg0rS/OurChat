@@ -1,59 +1,34 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using OurChat.Cache;
 using OurChat.DataBase;
 using OurChat.Models.DomainModels;
 
 namespace OurChat.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
+[ApiController, Authorize]
 public class ProductController : ControllerBase
 {
     private readonly DbContextClass _context;
-    private readonly ICacheService _cacheService;
 
-    public ProductController(DbContextClass context, ICacheService cacheService)
+    public ProductController(DbContextClass context)
     {
         _context = context;
-        _cacheService = cacheService;
     }
 
     [HttpGet]
     [Route("ProductsList")]
     public async Task<ActionResult<IEnumerable<Product>>> Get()
     {
-        var productCache = new List<Product>();
-        productCache = _cacheService.GetData<List<Product>>("Product");
-        if (productCache == null)
-        {
-            var product = await _context.Products.ToListAsync();
-            if (product.Count > 0)
-            {
-                productCache = product;
-                var expirationTime = DateTimeOffset.Now.AddMinutes(3.0);
-                _cacheService.SetData("Product", productCache, expirationTime);
-            }
-        }
-
-        return productCache;
+        return await _context.Products.ToListAsync();
     }
 
     [HttpGet]
     [Route("ProductDetail")]
     public async Task<ActionResult<Product>> Get(int id)
     {
-        var productCache = new Product();
-        var productCacheList = new List<Product>();
-        productCacheList = _cacheService.GetData<List<Product>>("Product");
-        productCache = productCacheList.Find(x => x.ProductId == id);
-        if (productCache == null)
-        {
-            productCache = await _context.Products.FindAsync(id);
-        }
-
-        return productCache;
+        return await _context.Products.FindAsync(id);
     }
 
     [HttpPost]
@@ -62,7 +37,6 @@ public class ProductController : ControllerBase
     {
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
-        _cacheService.RemoveData("Product");
         return CreatedAtAction(nameof(Get), new { id = product.ProductId }, product);
     }
 
@@ -77,7 +51,6 @@ public class ProductController : ControllerBase
         }
 
         _context.Products.Remove(product);
-        _cacheService.RemoveData("Product");
         await _context.SaveChangesAsync();
         return await _context.Products.ToListAsync();
     }
@@ -101,7 +74,6 @@ public class ProductController : ControllerBase
         productData.ProductDescription = product.ProductDescription;
         productData.ProductName = product.ProductName;
         productData.ProductStock = product.ProductStock;
-        _cacheService.RemoveData("Product");
         await _context.SaveChangesAsync();
         return await _context.Products.ToListAsync();
     }

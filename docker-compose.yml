@@ -13,7 +13,7 @@ services:
       - pgd:/var/lib/postgresql/data
 
   web:
-    command: dotnet OurChat.dll --environment=prod
+    command: dotnet OurChat.dll --environment=Production
     environment:
       ASPNETCORE_ENVIRONMENT: prod
     restart: always
@@ -28,11 +28,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-
-  cache:
-    image: redis:alpine3.16
-    ports:
-      - "6379:6379"
 
 volumes:
   pgd:

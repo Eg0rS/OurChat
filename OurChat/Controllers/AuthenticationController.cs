@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -12,6 +11,13 @@ namespace OurChat.Controllers;
 [ApiController]
 public class AuthenticationController : ControllerBase
 {
+    private readonly IConfiguration _configuration;
+
+    public AuthenticationController(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
     [HttpPost("login")]
     public IActionResult Login([FromBody] Autorization user)
     {
@@ -19,20 +25,16 @@ public class AuthenticationController : ControllerBase
         {
             return BadRequest("Invalid user request!!!");
         }
-        if (user.Login == "Jaydeep" && user.Password == "Pass@777")
-        {
-            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ConfigurationManager.AppSetting["JWT:Secret"]));
-            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-            var tokeOptions = new JwtSecurityToken(
-                issuer: ConfigurationManager.AppSetting["JWT:ValidIssuer"],
-                audience: ConfigurationManager.AppSetting["JWT:ValidAudience"],
-                claims: new List<Claim>(),
-                expires: DateTime.Now.AddMinutes(6),
-                signingCredentials: signinCredentials
-            );
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-            return Ok(new JWTResponse { Token = tokenString });
-        }
-        return Unauthorized();
+
+        var tokeOptions = new JwtSecurityToken(
+            issuer: _configuration["Tokens:Authenticate:Issuer"],
+            audience: _configuration["Tokens:Authenticate:Audience"],
+            claims: new List<Claim>(),
+            expires: DateTime.Now.AddSeconds(Convert.ToDouble(_configuration["Tokens:Authenticate:Ttl"])),
+            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Authenticate:Secret"])),
+                SecurityAlgorithms.HmacSha256)
+        );
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+        return Ok(new JWTResponse { Token = tokenString });
     }
 }
